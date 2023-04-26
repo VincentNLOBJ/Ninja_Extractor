@@ -1,3 +1,11 @@
+# ---------------------------------
+# Ninja Extractor 1.0
+# By VincentNL 25/04/2023
+#
+# Extract .NJ/.NJM/.NJL/.NJD files 
+# from any uncompressed archive.
+# ---------------------------------
+
 import os
 import sys
 import tkinter as tk
