@@ -73,15 +73,19 @@ def search(magic, current_file, app_dir, filename):
                         fsize = FILE_END_OFFSET - addr
 
                         # Save file
-                        if not os.path.exists(os.path.join(app_dir, 'Extracted', filename)):
-                            os.makedirs(os.path.join(app_dir, 'Extracted', filename))
-                        new_file = os.path.join(app_dir,
-                                                f'Extracted/{filename}/{filename[0:-4]}_{str(i).zfill(4)}{ext}')
-                        with open(new_file, "wb") as n:
-                            n.write(f.read(fsize))
-
+                        save_file(i,f,fsize,ext)
 
             except: print(f'{current_file}\nFile error!')
+
+
+def save_file(i,f,fsize,ext):
+    # i = file number , f = file, fsize = file size, ext = file extension
+
+    if not os.path.exists(os.path.join(app_dir, 'Extracted', filename)):
+        os.makedirs(os.path.join(app_dir, 'Extracted', filename))
+    new_file = os.path.join(app_dir,f'Extracted/{filename}/{filename[0:-4]}_{str(i).zfill(4)}{ext}')
+    with open(new_file, "wb") as n:
+        n.write(f.read(fsize))
 
 
 # Open a file dialog to select the input file(s)
