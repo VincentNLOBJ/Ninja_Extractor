@@ -1,5 +1,5 @@
 # ---------------------------------
-# Ninja Extractor 1.0
+# Ninja Extractor 1.1
 # By VincentNL 25/04/2023
 #
 # Extract .NJ/.NJM/.NJL/.NJD files
@@ -23,6 +23,7 @@ def search(magic, current_file, app_dir, filename):
     with open(current_file, "rb") as f:
         data = f.read()
         offset = 0
+        curnum = 0
         addr_list = []
 
         '''You can modify this part to add other MAGIC / extension / filetypes'''
@@ -73,17 +74,18 @@ def search(magic, current_file, app_dir, filename):
                         fsize = FILE_END_OFFSET - addr
 
                         # Save file
-                        save_file(i,f,fsize,ext)
+                        save_file(i, f, fsize, ext, curnum)
+                        curnum += 1
 
             except: print(f'{current_file}\nFile error!')
 
 
-def save_file(i,f,fsize,ext):
-    # i = file number , f = file, fsize = file size, ext = file extension
+def save_file(i, f, fsize, ext,curnum):
+    # i = file , f = file, fsize = file size, ext = file extension, curnum = current file number
 
     if not os.path.exists(os.path.join(app_dir, 'Extracted', filename)):
         os.makedirs(os.path.join(app_dir, 'Extracted', filename))
-    new_file = os.path.join(app_dir,f'Extracted/{filename}/{filename[0:-4]}_{str(i).zfill(4)}{ext}')
+    new_file = os.path.join(app_dir,f'Extracted/{filename}/{str(curnum).zfill(4)}{ext}')
     with open(new_file, "wb") as n:
         n.write(f.read(fsize))
 
