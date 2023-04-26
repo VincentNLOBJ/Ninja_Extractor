@@ -26,6 +26,9 @@ def search(magic, current_file, app_dir, filename):
         addr_list = []
 
         ext = None
+
+        '''You can modify this part to add other MAGICs / extension'''
+
         if magic == b'NJCM': ext = '.nj'
         elif magic == b'NMDM': ext = '.njm'
         elif magic == b'NJTL': ext = '.njl'
@@ -39,10 +42,24 @@ def search(magic, current_file, app_dir, filename):
 
         for i, addr in enumerate(addr_list):
             try:
+                new_file = os.path.join(app_dir, f'Extracted/{filename}/{filename[0:-4]}_{str(i).zfill(4)}{ext}')
+
+                ''' 
+                Replace / modify this part to extract other type of files
+                based on finding magic file signature(s) into uncompressed archive(s).
+                
+                for standard Ninja it's pretty simple:
+                
+                MAGIC --> MODEL DATA --> POF DATA
+                
+                1) Model size value = Magic offset + 0x4 bytes [uint32 le]
+                2) POF offset = Magic offset + 0x8 + model size
+                3) POF size value = POF offset +0x4 [uint32 le]
+                4) Ninja file size = (POF offset + POF size + 0x8) - Magic offset
+                  '''
+
                 f.seek(addr + 4)
                 size = int.from_bytes(f.read(4), byteorder='little')
-
-                new_file = os.path.join(app_dir, f'Extracted/{filename}/{filename[0:-4]}_{str(i).zfill(4)}{ext}')
                 POF_OFFSET = f.seek(addr + 8 + size)
                 POF_CHECK = int.from_bytes(f.read(3), byteorder='little')
 
@@ -75,5 +92,8 @@ for file in my_files:
     current_file = file
     source_dir, filename = os.path.split(file)
     app_dir = os.path.abspath(os.getcwd())
+
+    '''You can modify this part to find other MAGICs'''
+    
     for pattern in [b'NJCM', b'NMDM', b'NJTL', b'NMD\\']:
         search(pattern, current_file, app_dir, filename)
