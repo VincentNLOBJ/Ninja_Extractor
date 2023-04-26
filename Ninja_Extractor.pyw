@@ -2,7 +2,7 @@
 # Ninja Extractor 1.0
 # By VincentNL 25/04/2023
 #
-# Extract .NJ/.NJM/.NJL/.NJD files 
+# Extract .NJ/.NJM/.NJL/.NJD files
 # from any uncompressed archive.
 # ---------------------------------
 
@@ -19,22 +19,22 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-def search(pattern, current_file, app_dir, filename):
+def search(magic, current_file, app_dir, filename):
     with open(current_file, "rb") as f:
         data = f.read()
         offset = 0
         addr_list = []
 
         ext = None
-        if pattern == b'NJCM': ext = '.nj'
-        elif pattern == b'NMDM': ext = '.njm'
-        elif pattern == b'NJTL': ext = '.njl'
-        elif pattern == b'NMD\\': ext = '.njd'
+        if magic == b'NJCM': ext = '.nj'
+        elif magic == b'NMDM': ext = '.njm'
+        elif magic == b'NJTL': ext = '.njl'
+        elif magic == b'NMD\\': ext = '.njd'
 
         while True:
-            i = data.find(pattern, offset)
+            i = data.find(magic, offset)
             if i == -1: break
-            offset = i + len(pattern)
+            offset = i + len(magic)
             addr_list.append(i)
 
         for i, addr in enumerate(addr_list):
