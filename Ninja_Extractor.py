@@ -43,10 +43,12 @@ def search(magic, current_file, app_dir, filename):
                 if filetype == 'ninja':
                     ''' 
                     
-                    Replace / modify this part to extract other type of files
-                    based on finding magic file signature(s) into uncompressed archive(s).
+                    Replace / modify this part to extract other file types,
+                    based on finding magic signature(s) into uncompressed archive(s).
+                    
+                    *** What you need to determine is the size of file after MAGIC offset. ***
 
-                    for standard Ninja it's pretty simple:
+                    i.e. for standard Ninja it's pretty simple:
 
                         MAGIC --> MODEL DATA --> POF DATA
 
@@ -83,10 +85,10 @@ def search(magic, current_file, app_dir, filename):
 
 
 # Open a file dialog to select the input file(s)
-iconPath = resource_path('ninja.ico')  # window icon
+#iconPath = resource_path('ninja.ico')  # window icon
 root = tk.Tk()
 root.withdraw()
-root.iconbitmap(iconPath)
+#root.iconbitmap(iconPath)
 
 my_files = filedialog.askopenfilenames(initialdir=".", title="Select file(s) to scan", filetypes=[("*.*", "*.*")])
 
