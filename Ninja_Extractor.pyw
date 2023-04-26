@@ -25,14 +25,12 @@ def search(magic, current_file, app_dir, filename):
         offset = 0
         addr_list = []
 
-        ext = None
+        '''You can modify this part to add other MAGIC / extension / filetypes'''
 
-        '''You can modify this part to add other MAGICs / extension'''
-
-        if magic == b'NJCM': ext = '.nj'
-        elif magic == b'NMDM': ext = '.njm'
-        elif magic == b'NJTL': ext = '.njl'
-        elif magic == b'NMD\\': ext = '.njd'
+        if magic == b'NJCM': ext, filetype = ('.nj', 'ninja')
+        elif magic == b'NMDM': ext, filetype = ('.njm', 'ninja')
+        elif magic == b'NJTL': ext, filetype = ('.njl', 'ninja')
+        elif magic == b'NMD\\': ext, filetype = ('.njd', 'ninja')
 
         while True:
             i = data.find(magic, offset)
@@ -42,41 +40,46 @@ def search(magic, current_file, app_dir, filename):
 
         for i, addr in enumerate(addr_list):
             try:
-                new_file = os.path.join(app_dir, f'Extracted/{filename}/{filename[0:-4]}_{str(i).zfill(4)}{ext}')
+                if filetype == 'ninja':
+                    ''' 
+                    
+                    Replace / modify this part to extract other type of files
+                    based on finding magic file signature(s) into uncompressed archive(s).
 
-                ''' 
-                Replace / modify this part to extract other type of files
-                based on finding magic file signature(s) into uncompressed archive(s).
-                
-                for standard Ninja it's pretty simple:
-                
-                MAGIC --> MODEL DATA --> POF DATA
-                
-                1) Model size value = Magic offset + 0x4 bytes [uint32 le]
-                2) POF offset = Magic offset + 0x8 + model size
-                3) POF size value = POF offset +0x4 [uint32 le]
-                4) Ninja file size = (POF offset + POF size + 0x8) - Magic offset
-                  '''
+                    for standard Ninja it's pretty simple:
 
-                f.seek(addr + 4)
-                size = int.from_bytes(f.read(4), byteorder='little')
-                POF_OFFSET = f.seek(addr + 8 + size)
-                POF_CHECK = int.from_bytes(f.read(3), byteorder='little')
+                        MAGIC --> MODEL DATA --> POF DATA
 
-                if POF_CHECK == 4607824:  # "POF" in decimal value
+                        1) Model size value = Magic offset + 0x4 bytes [uint32 le]
+                        2) POF offset = Magic offset + 0x8 + model size
+                        3) POF size value = POF offset +0x4 [uint32 le]
+                        4) Ninja file size = (POF offset + POF size + 0x8) - Magic offset
+                        
+                    '''
 
-                    f.seek(POF_OFFSET + 4)
-                    POF_SIZE = int.from_bytes(f.read(4), byteorder='little')
-                    FILE_END_OFFSET = POF_OFFSET + POF_SIZE + 8
-                    f.seek(addr)
-                    fsize = FILE_END_OFFSET - addr
+                    f.seek(addr + 4)
+                    size = int.from_bytes(f.read(4), byteorder='little')
+                    POF_OFFSET = f.seek(addr + 8 + size)
+                    POF_CHECK = int.from_bytes(f.read(3), byteorder='little')
 
-                    if not os.path.exists(os.path.join(app_dir, 'Extracted', filename)):
-                        os.makedirs(os.path.join(app_dir, 'Extracted', filename))
+                    if POF_CHECK == 4607824:  # "POF" in decimal value
 
-                    with open(new_file, "wb") as n:
-                        n.write(f.read(fsize))
-            except: print(f'{current_file}\nNinja model file error!')
+                        f.seek(POF_OFFSET + 4)
+                        POF_SIZE = int.from_bytes(f.read(4), byteorder='little')
+                        FILE_END_OFFSET = POF_OFFSET + POF_SIZE + 8
+                        f.seek(addr)
+                        fsize = FILE_END_OFFSET - addr
+
+                        # Save file
+                        if not os.path.exists(os.path.join(app_dir, 'Extracted', filename)):
+                            os.makedirs(os.path.join(app_dir, 'Extracted', filename))
+                        new_file = os.path.join(app_dir,
+                                                f'Extracted/{filename}/{filename[0:-4]}_{str(i).zfill(4)}{ext}')
+                        with open(new_file, "wb") as n:
+                            n.write(f.read(fsize))
+
+
+            except: print(f'{current_file}\nFile error!')
 
 
 # Open a file dialog to select the input file(s)
@@ -94,6 +97,6 @@ for file in my_files:
     app_dir = os.path.abspath(os.getcwd())
 
     '''You can modify this part to find other MAGICs'''
-    
+
     for pattern in [b'NJCM', b'NMDM', b'NJTL', b'NMD\\']:
         search(pattern, current_file, app_dir, filename)
